@@ -81,6 +81,57 @@ class Chef
           end
         end
 
+        def action_grant_table
+          begin
+            grant_statement = "GRANT #{@new_resource.privileges.join(', ')} ON "
+            if @new_resource.tables.include?(:all)
+              grant_statement << "ALL TABLES IN SCHEMA \"#{@new_resource.schema_name}\""
+            else
+              grant_statement << "TABLE #{@new_resource.tables.join(', ')}"
+            end
+            grant_statement << " TO \"#{@new_resource.username}\""
+            Chef::Log.info("#{@new_resource}: granting access with statement [#{grant_statement}]")
+            db(@new_resource.database_name).query(grant_statement)
+            @new_resource.updated_by_last_action(true)
+          ensure
+            close
+          end
+        end
+
+        def action_grant_sequence
+          begin
+            grant_statement = "GRANT #{@new_resource.privileges.join(', ')} ON "
+            if @new_resource.sequences.include?(:all)
+              grant_statement << "ALL SEQUENCES IN SCHEMA \"#{@new_resource.schema_name}\""
+            else
+              grant_statement << "SEQUENCE #{@new_resource.sequences.join(', ')}"
+            end
+            grant_statement << " TO \"#{@new_resource.username}\""
+            Chef::Log.info("#{@new_resource}: granting access with statement [#{grant_statement}]")
+            db(@new_resource.database_name).query(grant_statement)
+            @new_resource.updated_by_last_action(true)
+          ensure
+            close
+          end
+        end
+
+        def action_grant_function
+          begin
+            grant_statement = "GRANT #{@new_resource.privileges.join(', ')} ON "
+            if @new_resource.functions.include?(:all)
+              grant_statement << "ALL FUNCTIONS IN SCHEMA \"#{@new_resource.schema_name}\""
+            else
+              grant_statement << "FUNCTION #{@new_resource.functions.join(', ')}"
+            end
+            grant_statement << " TO \"#{@new_resource.username}\""
+            Chef::Log.info("#{@new_resource}: granting access with statement [#{grant_statement}]")
+            db(@new_resource.database_name).query(grant_statement)
+            @new_resource.updated_by_last_action(true)
+          ensure
+            close
+          end
+        end
+
         private
         def exists?
           begin

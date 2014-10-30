@@ -27,7 +27,7 @@ Resources/Providers
 These resources aim to expose an abstraction layer for interacting with different RDBMS in a general way. Currently the cookbook ships with providers for MySQL, PostgreSQL and SQL Server. Please see specific usage in the __Example__ sections below. The providers use specific Ruby gems installed under Chef's Ruby environment to execute commands and carry out actions. These gems will need to be installed before the providers can operate correctly. Specific notes for each RDBS flavor:
 
 - MySQL: leverages the `mysql` gem which is installed as part of the `mysql-chef_gem` recipe. You must declare `include_recipe "database::mysql"` to include this in your recipe.
-- PostgreSQL: leverages the `pg` gem which is installed as part of the `postgresql::ruby` recipe. You must declare `include_recipe "database::postgresql"` to include this. 
+- PostgreSQL: leverages the `pg` gem which is installed as part of the `postgresql::ruby` recipe. You must declare `include_recipe "database::postgresql"` to include this.
 - SQL Server: leverages the `tiny_tds` gem which is installed as part of the `sql_server::client` recipe.
 
 This cookbook is not in charge of installing the Database Management System itself. Therefore, if you want to install MySQL, for instance, you should add `include_recipe "mysql::server"` in your recipe, or include `mysql::server` in the node run_list.
@@ -326,12 +326,16 @@ Manage users and user privileges in a RDBMS. Use the proper shortcut resource de
       action :grant
     end
 
-    # grant all privileges on all tables in foo db
+    # grant all privileges on all tables, sequences and functions in public schema of foo db
     postgresql_database_user 'foo_user' do
       connection postgresql_connection_info
       database_name 'foo'
+      schema_name 'public'
+      tables [:all]
+      sequences [:all]
+      functions [:all]
       privileges [:all]
-      action :grant
+      action [:grant, :grant_schema, :grant_table, :grant_sequence, :grant_function]
     end
 
     # grant select,update,insert privileges to all tables in foo db
